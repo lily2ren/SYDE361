@@ -1,0 +1,31 @@
+//Code for Arduino to send PWM signal of captured distance
+
+#include <Ultrasonic.h>
+
+Ultrasonic ultrasonic(5,6); // (Trig PIN,Echo PIN)
+#define tnsyPin 3
+int distance = 0;
+int cacheDistance = 0;
+void setup() {
+  Serial.begin(9600);
+  pinMode(4, OUTPUT); // VCC pin
+  pinMode(7, OUTPUT); // GND ping
+  pinMode(3, OUTPUT); // Teensy signal
+  digitalWrite(4, HIGH); // VCC +5V mode  
+  digitalWrite(7, LOW);  // GND mode
+}
+
+void loop()
+{
+  distance = ultrasonic.Ranging(CM); // CM or INC
+  if (distance > 25) {
+    distance = 25;
+  } else if ((distance - cacheDistance) >= 10) {
+    distance = cacheDistance;
+  }
+  
+  analogWrite(tnsyPin, 255*(distance/25.0));
+  Serial.println(255*(distance/25.0));
+  cacheDistance = distance;
+  delay(30);
+}
